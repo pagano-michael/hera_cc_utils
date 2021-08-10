@@ -1,4 +1,4 @@
-""" Utilities for deailng with maps. """
+""" Utilities for dealing with maps. """
 
 import sys
 import numpy as np
