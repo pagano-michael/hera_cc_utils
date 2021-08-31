@@ -55,6 +55,7 @@ def coords_in(data):
             return _coords_in[data]
 
     print("Assuming input map is in celestial coordinates.")
+    print("Set `coords_in` by hand to 'G', 'C', or 'E' to change.")
     return 'C'
 
 class Map(object):
@@ -76,6 +77,7 @@ class Map(object):
         self.data = data
         self.freq_unit = freq_unit
         self.kwargs = kwargs
+        self.coords_in = coords_in
 
         if type(data) == str:
             assert self.data in map_options
@@ -97,9 +99,16 @@ class Map(object):
 
         """
 
-        coord_in = coords_in(self.data)
+        if self.coords_in is None:
+            coord_in = coords_in(self.data)
+        else:
+            coord_in = self.coords_in
 
-        if self.data in ['gsm']:
+        if type(self.data) == np.ndarray:
+            raw_map = self.data
+            nside = healpy.npix2nside(raw_map.size)
+            rot = None
+        elif self.data in ['gsm']:
             raw_map = self._gsm.generate(freq)
             nside = 512
             rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
@@ -186,12 +195,16 @@ class Map(object):
         -
         """
 
-        coord_in = coords_in(self.data)
+        if self.coords_in is None:
+            coord_in = coords_in(self.data)
+        else:
+            coord_in = self.coords_in
 
         # Get image if it wasn't passed
         if img is None:
-            if self.data == 'gsm':
-                assert freq is not None, "Must supply `img` or `freq`!"
+            if type(self.data) == str:
+                if self.data == 'gsm':
+                    assert freq is not None, "Must supply `img` or `freq`!"
 
             img = self.get_map(freq=freq, projection=projection)
 

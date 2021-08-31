@@ -1,18 +1,23 @@
 """ Random stuff. """
 
-@ticker.FuncFormatter
-def degree_ticks(x, pos):
-    return r"%.0f$^\circ$" % x
+import numpy as np
+import healpy as hp
 
-def top_cbar(ax, cax, label='Jy/beam', size='4%', pad=0.1, length=5,
-    labelsize=16, fontsize=20, minpad=1):
+deg_per_hr = 15.
 
-    divider = make_axes_locatable(ax)
-    cbax = divider.append_axes('top', size=size, pad=pad)
-    cbar = fig.colorbar(cax, cax=cbax, orientation='horizontal')
-    cbax.grid(False)
-    cbax.xaxis.set_ticks_position('top')
-    cbax.tick_params(length=length, labelsize=labelsize)
-    cbax.xaxis.set_label_position('top')
-    cbax.set_xlabel(label, fontsize=fontsize)
-    return cbax, cbar
+def field_to_healpix(dec_min, dec_max, nside=512):
+
+    # Convert nside to number of pixels
+    npix = hp.nside2npix(nside)
+
+    # Create angles in radians
+    theta, phi = hp.pix2ang(nside, np.arange(npix))
+
+    # Convert to RA and DEC in hours and degrees
+    ra = np.rad2deg(phi) / deg_per_hr
+    dec = np.rad2deg(0.5 * np.pi - theta)
+
+    # Setup a mask that tells us which pixels are in the HERA stripe.
+    img = np.logical_and(dec >= dec_min, dec <= dec_max)
+
+    return img
