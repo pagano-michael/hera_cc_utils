@@ -5,11 +5,12 @@ import sys
 import numpy as np
 from matplotlib import ticker
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, Normalize
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.transforms import IdentityTransform
 #from hera_cc_utils.util import degree_ticks, top_cbar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from input import PATH
 
 try:
     import cartopy.crs as ccrs
@@ -18,7 +19,7 @@ except ImportError:
 
 try:
     from pygsm import GlobalSkyModel
-except IndexError:
+except ImportError:
     pass
 
 try:
@@ -28,20 +29,24 @@ except ImportError:
 
 deg_per_hr = 15.
 
-PATH = os.environ.get('HERA_CC_UTILS')
+# PATH = os.environ.get('HERA_CC_UTILS')
 
-map_options = 'gsm', 'roman', 'ngrst'
+map_options = 'gsm', 'roman', 'ngrst', 'euclid_south', 'euclid_fornax'
 
 _coords_in = \
 {
  'gsm': 'G',
  'roman': 'E',
  'ngrst': 'E',
+ 'euclid_south' : 'C',
+ 'euclid_fornax' : 'C'
 }
 
 _filenames = \
 {
  'roman': 'Roman_GRISM_mask.fits',
+ 'euclid_south': 'Euclid_deep_south.fits',
+ 'euclid_fornax': 'Euclid_deep_Fornax.fits',
 }
 
 def coords_in(data):
@@ -109,11 +114,21 @@ class Map(object):
             rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
         elif self.data in ['roman', 'ngrst']:
             fn = _filenames['roman']
-            raw_map = healpy.fitsfunc.read_map('{}/input/roman/{}'.format(PATH,
+            raw_map = healpy.fitsfunc.read_map('{}/roman/{}'.format(PATH,
                 fn))
 
             nside = healpy.npix2nside(raw_map.size)
             rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
+        elif self.data in ['euclid_south','euclid_fornax']:
+            fn = _filenames[self.data]
+            raw_map = healpy.fitsfunc.read_map('{}/euclid/{}'.format(PATH,
+                fn))
+            nside = healpy.npix2nside(raw_map.size)
+            rot = healpy.Rotator(coord=[coord_in, 'G'], deg=False, inv=True)
+        elif type(self.data) == np.ndarray:
+            raw_map = self.data
+            nside = healpy.npix2nside(raw_map.size)
+            rot = None
         else:
             # Could add other maps here for backdrops at some point.
             raise NotImplemented('help')
@@ -220,9 +235,6 @@ class Map(object):
         kw = kwargs.copy()
         kw.update(_kwargs)
 
-        if ('norm' not in kw) and ('vmin' not in kw) and ('vmax' not in kw):
-            kw['norm'] = LogNorm()
-
         if not has_ax:
             ax = fig.add_subplot(111, projection=_proj)
 
@@ -242,6 +254,7 @@ class Map(object):
             ax.tick_params(direction='in', color='w', size=6, labelsize=22)
             ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
             ax.set_ylabel(r'Declination [deg]', fontsize=24, labelpad=5)
+            fig.tight_layout()
         else:
             raise NotImplemented('help')
 
