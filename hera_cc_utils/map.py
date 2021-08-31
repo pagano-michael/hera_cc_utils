@@ -39,11 +39,16 @@ _coords_in = \
  'ngrst': 'E',
 }
 
+_filenames = \
+{
+ 'roman': 'Roman_GRISM_mask.fits',
+}
+
 def coords_in(data):
     if type(data) == str:
         if data in _coords_in:
             return _coords_in[data]
-        
+
     print("Assuming input map is in celestial coordinates.")
     return 'C'
 
@@ -62,7 +67,7 @@ class Map(object):
         Any other optional keyword arguments accepted by the map being
         generated, e.g., that can be supplied to pygsm.GlobalSkyModel.
     """
-    def __init__(self, data='gsm', freq_unit='Hz', **kwargs):
+    def __init__(self, data='gsm', freq_unit='Hz', coords_in=None, **kwargs):
         self.data = data
         self.freq_unit = freq_unit
         self.kwargs = kwargs
@@ -86,6 +91,7 @@ class Map(object):
             background.
 
         """
+
         coord_in = coords_in(self.data)
 
         if self.data in ['gsm']:
@@ -93,7 +99,7 @@ class Map(object):
             nside = 512
             rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
         elif self.data in ['roman', 'ngrst']:
-            fn = 'Roman_GRISM_mask.fits'
+            fn = _filenames['roman']
             raw_map = healpy.fitsfunc.read_map('{}/input/roman/{}'.format(PATH,
                 fn))
 
