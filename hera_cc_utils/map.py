@@ -18,7 +18,7 @@ except ImportError:
 
 try:
     from pygsm import GlobalSkyModel
-except IndexError:
+except ImportError:
     pass
 
 try:
