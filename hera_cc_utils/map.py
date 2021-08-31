@@ -10,7 +10,8 @@ from matplotlib.patches import Rectangle, Circle
 from matplotlib.transforms import IdentityTransform
 from hera_cc_utils.util import field_to_healpix
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from input import PATH
+
+from .data import PATH
 
 try:
     import cartopy.crs as ccrs
@@ -316,7 +317,7 @@ class Map(object):
             ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
             ax.set_ylabel(r'Declination [deg]', fontsize=24, labelpad=5)
         else:
-            raise NotImplemented('help')
+            raise NotImplementedError('help')
 
         # May need transform for subsequent over-plotting
         proj = kwargs['transform'] if 'transform' in kwargs else None
