@@ -30,18 +30,22 @@ deg_per_hr = 15.
 
 PATH = os.environ.get('HERA_CC_UTILS')
 
-map_options = 'gsm', 'roman', 'ngrst'
+map_options = 'gsm', 'roman', 'ngrst', 'euclid_south', 'euclid_fornax'
 
 _coords_in = \
 {
  'gsm': 'G',
  'roman': 'E',
  'ngrst': 'E',
+ 'euclid_south' : 'C',
+ 'euclid_fornax' : 'C'
 }
 
 _filenames = \
 {
  'roman': 'Roman_GRISM_mask.fits',
+ 'euclid_south': 'Euclid_deep_south.fits',
+ 'euclid_fornax': 'Euclid_deep_Fornax.fits',
 }
 
 def coords_in(data):
