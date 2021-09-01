@@ -79,10 +79,20 @@ class Map(object):
         self.data = data
         self.freq_unit = freq_unit
         self.kwargs = kwargs
-        self.coords_in = coords_in
+        self._coords_in_ = coords_in
 
         if type(data) == str:
             assert self.data in map_options
+
+    @property
+    def coords_in(self):
+        if not hasattr(self, '_coords_in'):
+            if self._coords_in_ is None:
+                self._coords_in = coords_in(self.data)
+            else:
+                self._coords_in = self._coords_in_
+
+        return self._coords_in
 
     @property
     def _gsm(self):
@@ -101,10 +111,7 @@ class Map(object):
 
         """
 
-        if self.coords_in is None:
-            coord_in = coords_in(self.data)
-        else:
-            coord_in = self.coords_in
+        coord_in = self.coords_in
 
         rot_kw = {'deg': False, 'inv': True}
         if projection == 'galactic':
