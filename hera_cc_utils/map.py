@@ -33,6 +33,8 @@ deg_per_hr = 15.
 
 map_options = 'gsm', 'roman', 'ngrst', 'euclid_south', 'euclid_fornax'
 
+mollview_projections = ['galactic', 'equatorial', 'celestial', 'ecliptic']
+
 _coords_in = \
 {
  'gsm': 'G',
@@ -104,41 +106,48 @@ class Map(object):
         else:
             coord_in = self.coords_in
 
+        rot_kw = {'deg': False, 'inv': True}
+        if projection == 'galactic':
+            coord_out = 'G'
+        elif projection == 'ecliptic':
+            coord_out = 'E'
+        elif projection in ['celestial', 'equatorial']:
+            coord_out = 'C'
+        elif projection in ['rectilinear', 'Robinson']:
+            coord_out = 'C'
+        else:
+            raise ValueError("Unrecognized option for `projection`.")
+
         if type(self.data) == np.ndarray:
             raw_map = self.data
             nside = healpy.npix2nside(raw_map.size)
-            rot = None
         elif self.data in ['gsm']:
             raw_map = self._gsm.generate(freq)
             nside = 512
-            rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
         elif self.data in ['roman', 'ngrst']:
             fn = _filenames['roman']
             raw_map = healpy.fitsfunc.read_map('{}/roman/{}'.format(PATH,
                 fn))
-
             nside = healpy.npix2nside(raw_map.size)
-            rot = healpy.Rotator(coord=[coord_in, 'C'], deg=False, inv=True)
-        elif self.data in ['euclid_south','euclid_fornax']:
+        elif self.data in ['euclid_south', 'euclid_fornax']:
             fn = _filenames[self.data]
             raw_map = healpy.fitsfunc.read_map('{}/euclid/{}'.format(PATH,
                 fn))
             nside = healpy.npix2nside(raw_map.size)
-            rot = healpy.Rotator(coord=[coord_in, 'G'], deg=False, inv=True)
         elif type(self.data) == np.ndarray:
             raw_map = self.data
             nside = healpy.npix2nside(raw_map.size)
-            rot = None
         else:
             # Could add other maps here for backdrops at some point.
             raise NotImplemented('help')
 
-        ##
-        # If we're here, need to do some transformations.
+        # Initialize Rotator object to transform coordinates.
+        rot = healpy.Rotator(coord=[coord_in, coord_out], **rot_kw)
 
+        # Get (theta, phi) angles for all pixels
         theta, phi = healpy.pix2ang(nside, np.arange(healpy.nside2npix(nside)))
 
-        # Rotate into celestial coordinates
+        # Rotate into desired coordinate system.
         if rot is not None:
             theta_cel, phi_cel = rot(theta, phi)
             map_theta_phi = healpy.get_interp_val(raw_map, theta_cel, phi_cel)
@@ -168,16 +177,7 @@ class Map(object):
 
             img = healpy.get_interp_val(map_theta_phi, RA, DEC, lonlat=True)
         else:
-            return raw_map
-            #_ra = np.rad2deg(phi) / deg_per_hr
-            #_dec = np.rad2deg(0.5 * np.pi - theta)
-            #ra = np.unique(_ra)
-            #dec = np.unique(_dec)
-#
-            #RA, DEC = np.meshgrid(ra, dec)
-#
-            #img = healpy.get_interp_val(map_theta_phi, RA, DEC, lonlat=True)
-
+            return map_theta_phi
 
         img = img.reshape(nside, nside)
 
@@ -212,7 +212,7 @@ class Map(object):
         has_ax = True
         if ax is None:
             fig = plt.figure(num=num, **fig_kwargs)
-            if projection.lower() in ['ecliptic', 'galactic']:
+            if projection.lower() in mollview_projections:
                 rect = 0, 1, 0, 1
                 #ax = healpy.projaxes.MollweideAxes(fig=fig, rect=rect)
                 has_ax = True
@@ -220,7 +220,7 @@ class Map(object):
                 has_ax = False
 
         # Setup kwargs for imshow or mollview call.
-        if projection.lower() in ['ecliptic', 'galactic']:
+        if projection.lower() in mollview_projections:
             _kwargs = {}
             _proj = None
         elif projection.lower() == 'robinson':
@@ -240,11 +240,8 @@ class Map(object):
 
         ##
         # Actually plot
-        if projection == 'ecliptic':
-            healpy.mollview(img, coord=[coord_in, 'E'], **kw)
-            img = None
-        elif projection == 'galactic':
-            healpy.mollview(img, coord=[coord_in, 'G'], **kw)
+        if projection in mollview_projections:
+            healpy.mollview(img,  **kw)
             img = None
         elif projection == 'rectilinear':
             cax = ax.imshow(img, **kw)
@@ -254,7 +251,6 @@ class Map(object):
             ax.tick_params(direction='in', color='w', size=6, labelsize=22)
             ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
             ax.set_ylabel(r'Declination [deg]', fontsize=24, labelpad=5)
-            fig.tight_layout()
         else:
             raise NotImplemented('help')
 
