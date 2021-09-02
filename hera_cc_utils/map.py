@@ -95,6 +95,16 @@ class Map(object):
         return self._coords_in
 
     @property
+    def is_binary(self):
+        if not hasattr(self, '_is_binary'):
+            if type(self.data) == np.ndarray:
+                self._is_binary = np.unique(self.data).size == 2
+            else:
+                self._is_binary = self.data != 'gsm'
+
+        return self._is_binary
+
+    @property
     def _gsm(self):
         """ An instance of pygsm.GlobalSkyModel. """
         if not hasattr(self, '_gsm_'):
@@ -193,13 +203,30 @@ class Map(object):
     def plot_map(self, freq=None, img=None, num=1, fig=None, ax=None,
         fig_kwargs={}, include_cbar=True, projection='rectilinear', **kwargs):
         """
-        Plot map in some coordinate system
+        Plot map in some coordinate system.
+
+        .. note :: If the map is binary, e.g., a survey footprint, and the
+            user supplies the keyword argument 'hatches', will overplot
+            survey area is cross-hatched region (currently for 'rectilinear'
+            projection only).
 
         .. note :: Can supply `img` directly. Will retrieve automatically
             if not supplied using `get_map` (see above).
 
         Parameters
-        -
+        ----------
+        freq : int, float
+            Currently only applies if we're dealing with the GSM, in which case
+            it should be the desired frequency in Hz.
+        projection : str
+            Desired projection of plot, options include 'rectlinear',
+            'ecliptic', 'galactic', or 'equatorial' at the moment.
+
+        Returns
+        -------
+        A tuple containing the (figure object, axis object, projection object,
+        and the image itself).
+
         """
 
         if self.coords_in is None:
@@ -251,7 +278,15 @@ class Map(object):
             healpy.mollview(img,  **kw)
             img = None
         elif projection == 'rectilinear':
-            cax = ax.imshow(img, **kw)
+            if self.is_binary and 'hatches' in kw:
+                if type(kw['hatches']) == str:
+                    tmp = ['', kw['hatches']]
+                    kw['hatches'] = tmp
+
+                kw['origin'] = 'image'
+                cax = ax.contourf(img, levels=1, **kw)
+            else:
+                cax = ax.imshow(img, **kw)
 
             ax.set_xlim(18, -6)
             ax.set_ylim(-90, 90)
