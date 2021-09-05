@@ -2,6 +2,7 @@
 
 import numpy as np
 import healpy as hp
+from astropy.coordinates import SkyCoord
 
 deg_per_hr = 15.
 
@@ -9,6 +10,13 @@ def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
     """
     Create a healpix map from a contiguous block in RA and DEC.
 
+    Parameters
+    ----------
+    dec_min, dec_max : int, float
+        Minimum/maximum declination of stripe [deg].
+    ra_min, ra_max : int, float, str
+        Minimum/maximum RA of stripe. If supplied as int or float, assumed
+        to be in hours. If str, interpreted as ICRS, will convert to hours.
 
     """
 
@@ -22,9 +30,26 @@ def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
     ra = np.rad2deg(phi) / deg_per_hr
     dec = np.rad2deg(0.5 * np.pi - theta)
 
+    # Convert RA limits to degrees if need be.
+    if type(ra_min) == str:
+        coord_min = SkyCoord(ra_min, '00d00m00s', frame='icrs')
+        ra_min = coord_min.ra.hour
+
+    if type(ra_max) == str:
+        coord_max = SkyCoord(ra_max, '00d00m00s', frame='icrs')
+        ra_max = coord_max.ra.hour
+
     # Setup a mask that tells us which pixels are in the HERA stripe.
     dec_ok = np.logical_and(dec >= dec_min, dec <= dec_max)
-    ra_ok = np.logical_and(ra >= ra_min, ra <= ra_max)
+
+    # Be careful to wrap around 24 hr mark.
+    if ra_min > ra_max:
+        ra_ok1 = np.logical_and(ra >= ra_min, ra <= 24)
+        ra_ok2 = np.logical_and(ra >= 0, ra <= ra_max)
+        ra_ok = np.logical_or(ra_ok1, ra_ok2)
+    else:
+        ra_ok = np.logical_and(ra >= ra_min, ra <= ra_max)
+
     img = np.logical_and(dec_ok, ra_ok)
 
     return img

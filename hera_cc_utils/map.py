@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm, Normalize
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.transforms import IdentityTransform
-#from hera_cc_utils.util import degree_ticks, top_cbar
+from hera_cc_utils.util import field_to_healpix
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from input import PATH
 
@@ -51,6 +51,16 @@ _filenames = \
  'euclid_fornax': 'Euclid_deep_Fornax.fits',
 }
 
+_stripes = \
+{
+ 'hera': (-35, -25, 0, 24),
+
+ # From Aihara et al. 2018, Table 5.
+ 'hsc_north': (42, 44.5, '13h20m00s', '16h40m00s'),
+ 'hsc_spring': (-2, 5, '09h00m00s', '15h30m00s'),
+ 'hsc_fall': (-1, 7, '22h00m00s', '02h40m00s'),
+}
+
 def coords_in(data):
     if type(data) == str:
         if data in _coords_in:
@@ -65,6 +75,9 @@ class Map(object):
     Utilities for dealing with maps, particularly (for now at least) all-sky
     maps like the global sky model (GSM).
 
+    .. note :: Can also be used to represent survey footprints, i.e., healpix
+        maps with just ones and zeros.
+
     Parameters
     ----------
     data : str
@@ -75,14 +88,22 @@ class Map(object):
         Any other optional keyword arguments accepted by the map being
         generated, e.g., that can be supplied to pygsm.GlobalSkyModel.
     """
-    def __init__(self, data='gsm', freq_unit='Hz', coords_in=None, **kwargs):
-        self.data = data
-        self.freq_unit = freq_unit
-        self.kwargs = kwargs
-        self._coords_in_ = coords_in
+    def __init__(self, data='gsm', freq_unit='Hz', coords_in=None,
+        nside=512, **kwargs):
 
         if type(data) == str:
-            assert self.data in map_options
+            assert (data in map_options) or (data in _stripes.keys()), \
+                "Unrecognized input map: {}".format(data)
+
+        if data in _stripes.keys():
+            self.data = field_to_healpix(*_stripes[data], nside=nside)
+            self._coords_in_ = 'C'
+        else:
+            self.data = data
+            self._coords_in_ = coords_in
+
+        self.freq_unit = freq_unit
+        self.kwargs = kwargs
 
     @property
     def coords_in(self):
@@ -283,6 +304,7 @@ class Map(object):
                     tmp = ['', kw['hatches']]
                     kw['hatches'] = tmp
 
+                del kw['aspect']
                 kw['origin'] = 'image'
                 cax = ax.contourf(img, levels=1, **kw)
             else:
