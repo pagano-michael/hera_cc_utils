@@ -6,6 +6,23 @@ from astropy.coordinates import SkyCoord
 
 deg_per_hr = 15.
 
+lines = \
+{
+ 'HI': {'freq_rest': 1420.405751},
+ 'CII': {'lambda_rest': 157.7},
+ 'Lya': {'lambda_rest': 0.121567},
+ 'Ha': {'lambda_rest': 0.65645377},
+ 'Hb': {'lambda_rest': 0.48613615},
+ 'OII': {'lambda_rest': 0.3727},
+ 'OIII': {'lambda_rest': 0.5007},
+ 'CO10': {'freq_rest': 115271.208},
+ 'CO21': {'freq_rest': 2*115271.208},
+ 'CO32': {'freq_rest': 3*115271.208},
+ 'CO43': {'freq_rest': 4*115271.208},
+ 'CO54': {'freq_rest': 5*115271.208},
+ 'CO65': {'freq_rest': 6*115271.208},
+}
+
 def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
     """
     Create a healpix map from a contiguous block in RA and DEC.
