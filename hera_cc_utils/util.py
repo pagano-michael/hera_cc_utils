@@ -6,7 +6,7 @@ from astropy.coordinates import SkyCoord
 
 deg_per_hr = 15.
 
-lines = \
+line_registry = \
 {
  'HI': {'freq_rest': 1420.405751},
  'CII': {'lambda_rest': 157.7},
