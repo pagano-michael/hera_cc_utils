@@ -95,7 +95,7 @@ class Map(object):
             assert (data in map_options) or (data in _stripes.keys()), \
                 "Unrecognized input map: {}".format(data)
 
-        if data in _stripes.keys():
+        if type(data) == str and data in _stripes.keys():
             self.data = field_to_healpix(*_stripes[data], nside=nside)
             self._coords_in_ = 'C'
         else:
@@ -285,7 +285,7 @@ class Map(object):
                 'origin':'lower'}
         elif projection == 'rectilinear':
             _proj = None
-            _kwargs = {'extent': [-6, 18, -90, 90], 'aspect': 'auto'}
+            _kwargs = {'extent': [0, 24, -90, 90], 'aspect': 'auto'}
 
         kw = kwargs.copy()
         kw.update(_kwargs)
@@ -310,7 +310,7 @@ class Map(object):
             else:
                 cax = ax.imshow(img, **kw)
 
-            ax.set_xlim(18, -6)
+            ax.set_xlim(24, 0)
             ax.set_ylim(-90, 90)
             ax.tick_params(direction='in', color='w', size=6, labelsize=22)
             ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
