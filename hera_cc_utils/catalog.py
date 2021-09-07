@@ -1,6 +1,7 @@
 """ Utilities for dealing with galaxy/QSO catalogs. """
 
 import numpy as np
+from .util import deg_per_hr
 from astropy.coordinates import SkyCoord
 
 _xshooter_ref = 'https://ui.adsabs.harvard.edu/abs/2020ApJ...905...51S/abstract'
@@ -54,8 +55,8 @@ _atlas = \
 {
  'J025.6821-33.4627': {'ra': '025.6821', 'dec': '-33.4627',
                 'z':6.31, 'ref': _atlas_ref1},
- 'J029.9915-36.5658': {'ra': '029.9915', 'dec': '-36.5658',
-               'z':6.02, 'ref': _atlas_ref1},
+ #'J029.9915-36.5658': {'ra': '029.9915', 'dec': '-36.5658',
+ #               'z':6.02, 'ref': _atlas_ref1},
  'J332.8017−32.1036': {'ra': '332.8017', 'dec': '-32.1036',
                'z':6.32, 'ref': _atlas_ref2}
 }
@@ -72,8 +73,8 @@ _yang = 'https://ui.adsabs.harvard.edu/abs/2020ApJ...904...26Y/abstract'
 _decarli = 'https://ui.adsabs.harvard.edu/abs/2018ApJ...854...97D/abstract'
 _other = \
 {
- 'J0020−3653': {'ra': '0020', 'dec': '-3653',
-                'z':6.834, 'ref': _yang},
+ #'J0020−3653': {'ra': '0020', 'dec': '-3653',
+ #               'z':6.834, 'ref': _yang},
  'J0142−3327': {'ra': '0142', 'dec': '-3327',
                 'z':6.3379, 'ref': _yang},
  'J0148−2826': {'ra': '0148', 'dec': '-2826',
@@ -88,6 +89,8 @@ _other = \
 def _to_decimal(s):
     if '.' in s:
         out = float(s)
+    elif s[0] == '-':
+        out = float(s[0:3] + '.' + s[3:])
     else:
         out = float(s[0:2] + '.' + s[2:])
 
@@ -95,7 +98,7 @@ def _to_decimal(s):
 
 
 _qso_catalogs = {'viking': _viking, 'panstarrs': _ps1, 'atlas': _atlas,
-    'des': _des, 'other': _other}
+    'other': _other}
 
 class Catalog(object):
     def __init__(self, data, **kwargs):
@@ -111,6 +114,7 @@ class Catalog(object):
             "Only know how to do QSOs right now."
 
         data = []
+        names = []
         for cat in _qso_catalogs.keys():
 
             for element in _qso_catalogs[cat]:
@@ -126,11 +130,16 @@ class Catalog(object):
                     dec = obj['dec']
                 else:
                     kw = {'unit': 'degree', 'frame': 'icrs'}
-                    ra = _to_decimal(obj['ra'])
+                    if len(obj['ra']) == 4:
+                        ra = _to_decimal(obj['ra']) * deg_per_hr
+                    else:
+                        ra = _to_decimal(obj['ra'])
+
                     dec = _to_decimal(obj['dec'])
 
                 coord = SkyCoord(ra, dec, **kw)
+
+                names.append(element)
                 data.append((coord.ra.hour, coord.dec.degree, obj['z']))
 
-
-        return np.array(data)
+        return names, np.array(data)
