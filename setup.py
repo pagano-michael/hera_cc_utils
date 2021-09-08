@@ -15,6 +15,12 @@ setup_args = {
     "author_email": "mirochaj@gmail.com",
     "url": link,
     "packages": ["hera_cc_utils"],
+    "include_package_data": True,
+    "install_requires": [
+        "numpy",
+        "matplotlib",
+        "healpy",
+    ],
 }
 
 
