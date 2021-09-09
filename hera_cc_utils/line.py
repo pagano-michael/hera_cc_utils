@@ -2,13 +2,14 @@
 
 from astropy import constants as const
 
+
 class Line(object):
     def __init__(self, line_name, freq_rest=None, lambda_rest=None):
         """
         Initialize with frequencies in MHz or wavelengths in microns.
         """
         if freq_rest == None and lambda_rest == None:
-            raise ValueError('Must specify either rest wavelength or frequency')
+            raise ValueError("Must specify either rest wavelength or frequency")
         else:
             self.line_name = line_name
 
@@ -40,22 +41,22 @@ class Line(object):
         """
         Return the observed wavelength given the redshift
         """
-        return self.lambda_rest * (1. + z)
+        return self.lambda_rest * (1.0 + z)
 
     def z_to_freq(self, z):
         """
         Return the observed frequency given the redshift
         """
-        return self.freq_rest / (1. + z)
+        return self.freq_rest / (1.0 + z)
 
     def lambda_to_z(self, lambda_obs):
         """
         Return the redshift given the observed wavelength
         """
-        return lambda_obs / self.lambda_rest - 1.
+        return lambda_obs / self.lambda_rest - 1.0
 
     def freq_to_z(self, freq_obs):
         """
         Return the redshift given the observed frequency
         """
-        return self.freq_rest / freq_obs - 1.
+        return self.freq_rest / freq_obs - 1.0

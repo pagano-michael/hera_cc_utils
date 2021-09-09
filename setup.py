@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- mode: python; coding: utf-8 -*-
+"""Define setup.py for hera_cc_utils."""
 
 from setuptools import setup, find_namespace_packages
 
@@ -16,6 +17,7 @@ setup_args = {
     "include_package_data": True,
     "use_scm_version": True,
     "install_requires": [
+        "astropy",
         "healpy",
         "numpy",
         "matplotlib",
