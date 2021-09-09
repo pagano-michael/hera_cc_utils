@@ -1,7 +1,7 @@
 """ Simple demo showing how to plot GSM. """
 
 import numpy as np
-import hera_cc_tools as hera_cc
+import hera_cc_utils as hera_cc
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
