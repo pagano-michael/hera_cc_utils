@@ -12,8 +12,8 @@ cosmo = FlatLambdaCDM(H0=70, Om0=0.3, Tcmb0=2.725)
 
 survey_registry = \
 {
- 'hera': {'target_lines': ['HI'], 'R': None, 'hemisphere': 'S',
-    'freq_range': [50.,200.], 'angular_res': None},
+ 'hera': {'target_lines': ['HI'], 'R': 1533., 'hemisphere': 'S',
+    'freq_range': [50.,200.], 'angular_res': 0.00727},
 
  'spherex': {'target_lines': ['Ha', 'Hb', 'Lya', 'OII', 'OIII'],
     'R': 150., 'hemisphere': 'B',
