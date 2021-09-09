@@ -1,27 +1,31 @@
-""" Random stuff. """
+# -*- coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT License
+
+"""Define helpful utility functions."""
 
 import numpy as np
 import healpy as hp
 from astropy.coordinates import SkyCoord
 
-deg_per_hr = 15.
+deg_per_hr = 15.0
 
-line_registry = \
-{
- 'HI': {'freq_rest': 1420.405751},
- 'CII': {'lambda_rest': 157.7},
- 'Lya': {'lambda_rest': 0.121567},
- 'Ha': {'lambda_rest': 0.65645377},
- 'Hb': {'lambda_rest': 0.48613615},
- 'OII': {'lambda_rest': 0.3727},
- 'OIII': {'lambda_rest': 0.5007},
- 'CO10': {'freq_rest': 115271.208},
- 'CO21': {'freq_rest': 2*115271.208},
- 'CO32': {'freq_rest': 3*115271.208},
- 'CO43': {'freq_rest': 4*115271.208},
- 'CO54': {'freq_rest': 5*115271.208},
- 'CO65': {'freq_rest': 6*115271.208},
+line_registry = {
+    "HI": {"freq_rest": 1420.405751},
+    "CII": {"lambda_rest": 157.7},
+    "Lya": {"lambda_rest": 0.121567},
+    "Ha": {"lambda_rest": 0.65645377},
+    "Hb": {"lambda_rest": 0.48613615},
+    "OII": {"lambda_rest": 0.3727},
+    "OIII": {"lambda_rest": 0.5007},
+    "CO10": {"freq_rest": 115271.208},
+    "CO21": {"freq_rest": 2 * 115271.208},
+    "CO32": {"freq_rest": 3 * 115271.208},
+    "CO43": {"freq_rest": 4 * 115271.208},
+    "CO54": {"freq_rest": 5 * 115271.208},
+    "CO65": {"freq_rest": 6 * 115271.208},
 }
+
 
 def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
     """
@@ -29,14 +33,20 @@ def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
 
     Parameters
     ----------
-    dec_min, dec_max : int, float
+    dec_min, dec_max : int or float
         Minimum/maximum declination of stripe [deg].
-    ra_min, ra_max : int, float, str
+    ra_min, ra_max : int, float, or str
         Minimum/maximum RA of stripe. If supplied as int or float, assumed
         to be in hours. If str, interpreted as ICRS, will convert to hours.
+    nside : int
+        The nside of the HEALPix map to use.
 
+    Returns
+    -------
+    img : ndarray of bool
+        A HEALPix map of boolean type defining whether the pixel is included or
+        not.
     """
-
     # Convert nside to number of pixels
     npix = hp.nside2npix(nside)
 
@@ -49,11 +59,11 @@ def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
 
     # Convert RA limits to degrees if need be.
     if type(ra_min) == str:
-        coord_min = SkyCoord(ra_min, '00d00m00s', frame='icrs')
+        coord_min = SkyCoord(ra_min, "00d00m00s", frame="icrs")
         ra_min = coord_min.ra.hour
 
     if type(ra_max) == str:
-        coord_max = SkyCoord(ra_max, '00d00m00s', frame='icrs')
+        coord_max = SkyCoord(ra_max, "00d00m00s", frame="icrs")
         ra_max = coord_max.ra.hour
 
     # Setup a mask that tells us which pixels are in the HERA stripe.
@@ -71,6 +81,7 @@ def field_to_healpix(dec_min, dec_max, ra_min=0, ra_max=24, nside=512):
 
     return img
 
+
 def get_overlap_area(img1, img2):
     """
     Given two healpix maps, find the overlapping area in square degrees.
@@ -84,12 +95,11 @@ def get_overlap_area(img1, img2):
     img1, img2: np.ndarray
         Healpix maps (i.e., 1-D arrays).
 
-
     Returns
     -------
-    Overlapping area in square degrees.
+    float
+        Overlapping area in square degrees.
     """
-
     nside = hp.npix2nside(img1.size)
     nside2 = hp.npix2nside(img2.size)
 
@@ -102,6 +112,7 @@ def get_overlap_area(img1, img2):
     overlap = (img1 > 0) * (img2 > 0)
 
     return overlap.sum() * pix
+
 
 def get_map_area(img):
     """
@@ -118,8 +129,8 @@ def get_map_area(img):
 
     Returns
     -------
-    Survey area in square degrees.
-
+    float:
+        Survey area in square degrees.
     """
     nside = hp.npix2nside(img.size)
     pix = hp.nside2pixarea(nside, degrees=True)
