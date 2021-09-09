@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT License
+
 """Simple demo showing how to plot GSM."""
 
 import hera_cc_utils as hera_cc
