@@ -201,7 +201,8 @@ class Map(object):
         if projection == 'rectilinear':
 
             # Interpolate onto a rectangular mesh with size (nside, nside)
-            ra = np.linspace(-90, 270, nside)
+            #ra = np.linspace(-90, 270, nside)
+            ra = np.linspace(0, 360, nside)
             dec = np.linspace(0, 180, nside)
 
             RA, DEC = np.meshgrid(ra, dec)
