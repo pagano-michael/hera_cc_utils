@@ -1,15 +1,14 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT License
+
 """Utilities for dealing with maps."""
 
-import os
-import sys
+import warnings
 import numpy as np
-from matplotlib import ticker
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm, Normalize
-from matplotlib.patches import Rectangle, Circle
-from matplotlib.transforms import IdentityTransform
-from hera_cc_utils.util import field_to_healpix
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+from .util import field_to_healpix
 
 from .data import PATH
 
@@ -60,19 +59,38 @@ _stripes = {
 
 
 def coords_in(data):
-    if type(data) == str:
+    """
+    Define the input coordinates to use for the given data.
+
+    Parameters
+    ----------
+    data : str
+        The dataset to use. Should be a key corresponding to the _coords_in
+        dict.
+
+    Returns
+    -------
+    str
+        The coordinate system for the data. Should be one of: "G" (galactic),
+        "E" (ecliptic), or "C" (celestial or equatorial).
+    """
+    if isinstance(data, str):
         if data in _coords_in:
             return _coords_in[data]
 
-    print("Assuming input map is in celestial coordinates.")
-    print("Set `coords_in` by hand to 'G', 'C', or 'E' to change.")
+    warnings.warn(
+        "Assuming input map is in celestial coordinates. Set `coords_in` by "
+        "hand to 'G', 'C', or 'E' to change."
+    )
     return "C"
 
 
 class Map(object):
     """
-    Utilities for dealing with maps, particularly (for now at least) all-sky
-    maps like the global sky model (GSM).
+    Utilities for dealing with maps.
+
+    Right now, these utilities assume all-sky maps like the global sky model
+    (GSM).
 
     .. note :: Can also be used to represent survey footprints, i.e., healpix
         maps with just ones and zeros.
@@ -80,7 +98,7 @@ class Map(object):
     Parameters
     ----------
     data : str
-        Data source for map. Current options include 'gsm'.
+        Data source for map. Current options include: 'gsm'.
     freq_unit : str
         Assumed frequency units when generating maps. Options: Hz, MHz, GHz.
     kwargs : dict
@@ -90,12 +108,11 @@ class Map(object):
 
     def __init__(self, data="gsm", freq_unit="Hz", coords_in=None, nside=512, **kwargs):
 
-        if type(data) == str:
-            assert (data in map_options) or (
-                data in _stripes.keys()
-            ), "Unrecognized input map: {}".format(data)
+        if isinstance(data, str):
+            if data not in map_options or data not in _stripes.keys():
+                raise ValueError(f"Unrecognized input map: {data}")
 
-        if type(data) == str and data in _stripes.keys():
+        if isinstance(data, str) and data in _stripes.keys():
             self.data = field_to_healpix(*_stripes[data], nside=nside)
             self._coords_in_ = "C"
         else:
@@ -107,6 +124,19 @@ class Map(object):
 
     @property
     def coords_in(self):
+        """
+        Get the coordinates for the map.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            The coordinate system for the map. One of: "G" (galactic), "E"
+            (ecliptic), "C" (celestial or equatorial).
+        """
         if not hasattr(self, "_coords_in"):
             if self._coords_in_ is None:
                 self._coords_in = coords_in(self.data)
@@ -117,6 +147,18 @@ class Map(object):
 
     @property
     def is_binary(self):
+        """
+        Define whether the map is binary or not.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        bool
+           Whether the map is binary or not.
+        """
         if not hasattr(self, "_is_binary"):
             if type(self.data) == np.ndarray:
                 self._is_binary = np.unique(self.data).size == 2
@@ -127,7 +169,7 @@ class Map(object):
 
     @property
     def _gsm(self):
-        """An instance of pygsm.GlobalSkyModel."""
+        """Return an instance of pygsm.GlobalSkyModel."""
         if not hasattr(self, "_gsm_"):
             self._gsm_ = GlobalSkyModel(freq_unit=self.freq_unit, **self.kwargs)
         return self._gsm_
@@ -140,8 +182,24 @@ class Map(object):
             with GSM. Could be generalized to, e.g., plot Planck maps in the
             background.
 
-        """
+        Parameters
+        ----------
+        freq : float, optional
+            The frequency of the map, in Hz.
+        projection : str, optional
+            The projection to use. Must be one of: "galactic", "ecliptic",
+            "celestial", "equatorial", "rectilinear", "Robinson"
 
+        Returns
+        -------
+        img : ndarray
+            The HEALPix map corresponding to the joint map.
+
+        Raises
+        ------
+        ValueError
+            Raised if `projection` is not valid.
+        """
         coord_in = self.coords_in
 
         rot_kw = {"deg": False, "inv": True}
@@ -199,24 +257,22 @@ class Map(object):
 
         # interpolate healpix
         if projection == "rectilinear":
-
             # Interpolate onto a rectangular mesh with size (nside, nside)
             # ra = np.linspace(-90, 270, nside)
             ra = np.linspace(0, 360, nside)
             dec = np.linspace(0, 180, nside)
 
-            RA, DEC = np.meshgrid(ra, dec)
-            #
-            X, Y = RA.ravel(), DEC.ravel()
+            ra, dec = np.meshgrid(ra, dec)
+            x, y = ra.ravel(), dec.ravel()
             img = healpy.get_interp_val(
-                map_theta_phi, Y * np.pi / 180.0, X * np.pi / 180.0
+                map_theta_phi, y * np.pi / 180.0, x * np.pi / 180.0
             )
         elif projection == "Robinson":
             ra = x = np.linspace(-180, 180, nside)
             dec = y = np.linspace(-90, 90, nside)
-            RA, DEC = np.meshgrid(ra, dec)
+            ra, dec = np.meshgrid(ra, dec)
 
-            img = healpy.get_interp_val(map_theta_phi, RA, DEC, lonlat=True)
+            img = healpy.get_interp_val(map_theta_phi, ra, dec, lonlat=True)
         else:
             return map_theta_phi
 
@@ -234,7 +290,7 @@ class Map(object):
         fig_kwargs={},
         include_cbar=True,
         projection="rectilinear",
-        **kwargs
+        **kwargs,
     ):
         """
         Plot map in some coordinate system.
@@ -258,16 +314,10 @@ class Map(object):
 
         Returns
         -------
-        A tuple containing the (figure object, axis object, projection object,
-        and the image itself).
-
+        tuple
+            A tuple containing the (figure object, axis object, projection
+            object, and the image itself).
         """
-
-        if self.coords_in is None:
-            coord_in = coords_in(self.data)
-        else:
-            coord_in = self.coords_in
-
         # Get image if it wasn't passed
         if img is None:
             if type(self.data) == str:
@@ -281,7 +331,7 @@ class Map(object):
         if ax is None:
             fig = plt.figure(num=num, **fig_kwargs)
             if projection.lower() in mollview_projections:
-                rect = 0, 1, 0, 1
+                # rect = 0, 1, 0, 1
                 # ax = healpy.projaxes.MollweideAxes(fig=fig, rect=rect)
                 has_ax = True
             else:
@@ -322,9 +372,9 @@ class Map(object):
 
                 del kw["aspect"]
                 kw["origin"] = "image"
-                cax = ax.contourf(img, levels=1, **kw)
+                ax.contourf(img, levels=1, **kw)
             else:
-                cax = ax.imshow(img, **kw)
+                ax.imshow(img, **kw)
 
             ax.set_xlim(24, 0)
             ax.set_ylim(-90, 90)
