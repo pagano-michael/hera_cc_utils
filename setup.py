@@ -1,5 +1,7 @@
-#!/usr/bin/env python
 # -*- mode: python; coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT license.
+
 """Define setup.py for hera_cc_utils."""
 
 from setuptools import setup, find_namespace_packages
