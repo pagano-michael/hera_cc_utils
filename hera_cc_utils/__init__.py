@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT License
+
 """The __init__.py file for hera_cc_utils."""
 
 __all__ = [
