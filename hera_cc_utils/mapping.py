@@ -1,4 +1,4 @@
-""" Utilities for dealing with maps. """
+"""Utilities for dealing with maps."""
 
 import os
 import sys
