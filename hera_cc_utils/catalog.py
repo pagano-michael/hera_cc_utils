@@ -1,8 +1,13 @@
-""" Utilities for dealing with galaxy/QSO catalogs. """
+# -*- coding: utf-8 -*-
+# Copyright (c) 2021 The HERA Collaboration
+# Licensed under the MIT License
+
+"""Utilities for dealing with galaxy/QSO catalogs."""
 
 import numpy as np
-from .util import deg_per_hr
 from astropy.coordinates import SkyCoord
+
+from .util import deg_per_hr
 
 _xshooter_ref = "https://ui.adsabs.harvard.edu/abs/2020ApJ...905...51S/abstract"
 
@@ -52,7 +57,7 @@ _viking = {
         "z": 6.1456,
         "ref": _xshooter_ref,
     },
-    "J2348–3054": {
+    "J2348–3054_xshooter": {
         "ra": "23h48m33.336s",
         "dec": "-30d54m10.24s",
         "z": 6.9007,
@@ -95,8 +100,6 @@ _atlas = {
         "z": 6.31,
         "ref": _atlas_ref1,
     },
-    #'J029.9915-36.5658': {'ra': '029.9915', 'dec': '-36.5658',
-    #               'z':6.02, 'ref': _atlas_ref1},
     "J332.8017−32.1036": {
         "ra": "332.8017",
         "dec": "-32.1036",
@@ -119,8 +122,6 @@ _des = {
 _yang = "https://ui.adsabs.harvard.edu/abs/2020ApJ...904...26Y/abstract"
 _decarli = "https://ui.adsabs.harvard.edu/abs/2018ApJ...854...97D/abstract"
 _other = {
-    #'J0020−3653': {'ra': '0020', 'dec': '-3653',
-    #               'z':6.834, 'ref': _yang},
     "J0142−3327": {"ra": "0142", "dec": "-3327", "z": 6.3379, "ref": _yang},
     "J0148−2826": {"ra": "0148", "dec": "-2826", "z": 6.54, "ref": _yang},
     "J2002−3013": {"ra": "2002", "dec": "-3013", "z": 6.67, "ref": _yang},
@@ -148,6 +149,17 @@ _qso_catalogs = {"viking": _viking, "panstarrs": _ps1, "atlas": _atlas, "other":
 
 
 class Catalog(object):
+    """
+    Define a class for handling QSO catalogs.
+
+    Parameters
+    ----------
+    data : str
+        The type of data to handle. Right now "qso" is the only allowed value.
+    kwargs : dict
+        Keyword arguments to save directly on the object.
+    """
+
     def __init__(self, data, **kwargs):
         self.data = data
         self.kwargs = kwargs
@@ -155,11 +167,27 @@ class Catalog(object):
     def get_all_pos(self, zmin=None):
         """
         Return a list of (RA, DEC, redshift) for all objects.
-        """
 
-        assert self.data.lower().startswith(
-            "qso"
-        ), "Only know how to do QSOs right now."
+        Parameters
+        ----------
+        zmin : float
+            The minimum redshift to include for objects in the catalog.
+
+        Returns
+        -------
+        names : list of str, shape (n_objects)
+            The names of objects in the catalog.
+        data : ndarray, shape (n_objects, 3)
+            The RA [hour angle], dec [degree], and redshift of the objects.
+
+        Raises
+        ------
+        ValueError
+            This is raised if `self.data` is not "qso", as this is the only type
+            of data we know how to handle right now.
+        """
+        if not self.data.lower().startswith("qso"):
+            raise ValueError("Only know how to do QSOs right now.")
 
         data = []
         names = []
