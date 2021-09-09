@@ -28,38 +28,35 @@ try:
 except ImportError:
     pass
 
-deg_per_hr = 15.
+deg_per_hr = 15.0
 
-# PATH = os.environ.get('HERA_CC_UTILS')
-
-map_options = 'gsm', 'roman', 'ngrst', 'euclid_south', 'euclid_fornax'
+map_options = ['gsm', 'roman', 'ngrst', 'euclid_south', 'euclid_fornax', 'so']
 
 mollview_projections = ['galactic', 'equatorial', 'celestial', 'ecliptic']
 
-_coords_in = \
-{
- 'gsm': 'G',
- 'roman': 'E',
- 'ngrst': 'E',
- 'euclid_south' : 'C',
- 'euclid_fornax' : 'C'
+_coords_in = {
+    'gsm': 'G',
+    'roman': 'E',
+    'ngrst': 'E',
+    'euclid_south' : 'C',
+    'euclid_fornax' : 'C',
+    'so': 'C',
 }
 
-_filenames = \
-{
- 'roman': 'Roman_GRISM_mask.fits',
- 'euclid_south': 'Euclid_deep_south.fits',
- 'euclid_fornax': 'Euclid_deep_Fornax.fits',
+_filenames = {
+    'roman': 'Roman_GRISM_mask.fits',
+    'euclid_south': 'Euclid_deep_south.fits',
+    'euclid_fornax': 'Euclid_deep_Fornax.fits',
+    'so': 'so_lat.fits',
 }
 
-_stripes = \
-{
- 'hera': (-35, -25, 0, 24),
+_stripes = {
+    'hera': (-35, -25, 0, 24),
 
- # From Aihara et al. 2018, Table 5.
- 'hsc_north': (42, 44.5, '13h20m00s', '16h40m00s'),
- 'hsc_spring': (-2, 5, '09h00m00s', '15h30m00s'),
- 'hsc_fall': (-1, 7, '22h00m00s', '02h40m00s'),
+    # From Aihara et al. 2018, Table 5.
+    'hsc_north': (42, 44.5, '13h20m00s', '16h40m00s'),
+    'hsc_spring': (-2, 5, '09h00m00s', '15h30m00s'),
+    'hsc_fall': (-1, 7, '22h00m00s', '02h40m00s'),
 }
 
 def coords_in(data):
@@ -165,20 +162,22 @@ class Map(object):
             nside = 512
         elif self.data in ['roman', 'ngrst']:
             fn = _filenames['roman']
-            raw_map = healpy.fitsfunc.read_map('{}/roman/{}'.format(PATH,
-                fn))
+            raw_map = healpy.fitsfunc.read_map('{}/roman/{}'.format(PATH, fn))
             nside = healpy.npix2nside(raw_map.size)
         elif self.data in ['euclid_south', 'euclid_fornax']:
             fn = _filenames[self.data]
-            raw_map = healpy.fitsfunc.read_map('{}/euclid/{}'.format(PATH,
-                fn))
+            raw_map = healpy.fitsfunc.read_map('{}/euclid/{}'.format(PATH, fn))
+            nside = healpy.npix2nside(raw_map.size)
+        elif self.data == 'so':
+            fn = _filenames[self.data]
+            raw_map = healpy.fitsfinc.read_map('{}/so/{}'.format(PATH, fn))
             nside = healpy.npix2nside(raw_map.size)
         elif type(self.data) == np.ndarray:
             raw_map = self.data
             nside = healpy.npix2nside(raw_map.size)
         else:
             # Could add other maps here for backdrops at some point.
-            raise NotImplemented('help')
+            raise NotImplementedError('help')
 
         # Initialize Rotator object to transform coordinates.
         rot = healpy.Rotator(coord=[coord_in, coord_out], **rot_kw)
