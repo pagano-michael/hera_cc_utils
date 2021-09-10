@@ -109,7 +109,7 @@ class Map(object):
     def __init__(self, data="gsm", freq_unit="Hz", coords_in=None, nside=512, **kwargs):
 
         if isinstance(data, str):
-            if data not in map_options or data not in _stripes.keys():
+            if (data not in map_options) and (data not in _stripes.keys()):
                 raise ValueError(f"Unrecognized input map: {data}")
 
         if isinstance(data, str) and data in _stripes.keys():
@@ -230,7 +230,7 @@ class Map(object):
             nside = healpy.npix2nside(raw_map.size)
         elif self.data == "so":
             fn = _filenames[self.data]
-            raw_map = healpy.fitsfinc.read_map("{}/so/{}".format(PATH, fn))
+            raw_map = healpy.fitsfunc.read_map("{}/so/{}".format(PATH, fn))
             nside = healpy.npix2nside(raw_map.size)
         elif type(self.data) == np.ndarray:
             raw_map = self.data
