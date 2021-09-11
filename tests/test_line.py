@@ -134,3 +134,18 @@ def test_freq_to_z(line_keyvals):
     assert np.isclose(li.freq_to_z(freq_obs), 9.0)
 
     return
+
+
+def test_line_errors():
+    """Make sure that errors are raised appropriately."""
+    with pytest.raises(
+        ValueError, match="Must specify either rest wavelength or frequency"
+    ):
+        line.Line("foo")
+
+    with pytest.raises(
+        ValueError, match="Cannot specify both freq_rest and lambda_rest"
+    ):
+        line.Line("foo", freq_rest=1.0, lambda_rest=1.0)
+
+    return
