@@ -7,27 +7,11 @@
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
+import healpy
 
 from .util import field_to_healpix
-
 from .data import PATH
 
-try:
-    import cartopy.crs as ccrs
-except ImportError:
-    pass
-
-try:
-    from pygsm import GlobalSkyModel
-except ImportError:
-    pass
-
-try:
-    import healpy
-except ImportError:
-    pass
-
-deg_per_hr = 15.0
 
 map_options = ["gsm", "roman", "ngrst", "euclid_south", "euclid_fornax", "so"]
 
@@ -170,6 +154,13 @@ class Map(object):
     @property
     def _gsm(self):
         """Return an instance of pygsm.GlobalSkyModel."""
+        try:
+            from pygsm import GlobalSkyModel
+        except ImportError:
+            raise ImportError(
+                "Must have pygsm installed for working with the global sky model"
+            )
+
         if not hasattr(self, "_gsm_"):
             self._gsm_ = GlobalSkyModel(freq_unit=self.freq_unit, **self.kwargs)
         return self._gsm_
@@ -342,6 +333,11 @@ class Map(object):
             _kwargs = {}
             _proj = None
         elif projection.lower() == "robinson":
+            try:
+                import cartopy.crs as ccrs
+            except ImportError:
+                raise ImportError("Must have cartopy installed for Robinson projection")
+
             _proj = ccrs.Robinson(central_longitude=110)
             _kwargs = {
                 "transform": ccrs.PlateCarree(),
