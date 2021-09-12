@@ -20,5 +20,5 @@ exclude_lines =
 
 ignore_errors = True
 
-[html]
-directory = htmlcov
+[xml]
+output = coverage.xml
