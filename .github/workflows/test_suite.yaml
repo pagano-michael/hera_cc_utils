@@ -38,6 +38,8 @@ jobs:
     - name: Build
       run: |
         python setup.py install
+        echo "backend : Agg" > $HOME/matplotlibrc
+        export MATPLOTLIBRC=$HOME
     - name: Test with pytest
       run: |
         pytest --cov-config=.coveragerc --cov=hera_cc_utils --cov-report=xml -v tests/*.py
