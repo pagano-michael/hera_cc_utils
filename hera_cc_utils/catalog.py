@@ -164,6 +164,33 @@ class Catalog(object):
         self.data = data
         self.kwargs = kwargs
 
+    def plot_catalog(self, ax=None, zmin=None, fig=1,
+        projection='rectilinear', **kwargs):
+
+        if projection != 'rectilinear':
+            raise NotImplemented('Only know rectilinear projection right now!')
+
+        # Setup plot window
+        has_ax = True
+        if ax is None:
+            fig = plt.figure(num=num, **fig_kwargs)
+            has_ax = False
+
+        # Get all objects in catalog
+        names, coords = self.get_all_pos(zmin=zmin)
+
+        # Loop over them all and plot. Could do a lot more efficiently if
+        # we ever end up with big catalogs.
+        for i, coord in enumerate(coords):
+            ra, dec, z = coord
+            ax.scatter(ra, dec, **kwargs)
+
+        if not has_ax:
+            ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
+            ax.set_ylabel(r'Declination [deg]', fontsize=24, labelpad=5)
+
+        return ax
+
     def get_all_pos(self, zmin=None):
         """
         Return a list of (RA, DEC, redshift) for all objects.
