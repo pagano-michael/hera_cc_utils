@@ -177,7 +177,7 @@ class Catalog(object):
             has_ax = False
 
         # Get all objects in catalog
-        names, coords = cat.get_all_pos(zmin=zmin)
+        names, coords = self.get_all_pos(zmin=zmin)
 
         # Loop over them all and plot. Could do a lot more efficiently if
         # we ever end up with big catalogs.
