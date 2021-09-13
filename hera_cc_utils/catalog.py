@@ -183,6 +183,10 @@ class Catalog(object):
         # we ever end up with big catalogs.
         for i, coord in enumerate(coords):
             ra, dec, z = coord
+
+            if 'label' in kwargs and i > 0:
+                del kwargs['label']
+                
             ax.scatter(ra, dec, **kwargs)
 
         if not has_ax:
