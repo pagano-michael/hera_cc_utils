@@ -50,6 +50,13 @@ survey_registry = {
         "freq_range": [200000.0, 360000.0],
         "angular_res": 5.8178 * 1e-5,
     },
+    "roman": {
+        "target_lines": ["Lya"],
+        "rval": 461, # Really 461 * wave, with `wave` in microns. 
+        "hemisphere": "S",
+        "lambda_range": [1, 1.93],
+        "angular_res": 5.333e-07, # 0.11 arcsec/pixel
+    }
 }
 
 survey_registry["ccatp"] = survey_registry["fyst"]
