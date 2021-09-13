@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# emacs backup files
+*~
+
+# prevent Roman data from accidentally being added
+hera_cc_utils/data/roman/
