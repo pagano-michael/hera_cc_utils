@@ -7,6 +7,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import constants as const
+from matplotlib.patches import Rectangle
 from astropy.cosmology import FlatLambdaCDM
 
 from .line import Line
@@ -52,10 +53,17 @@ survey_registry = {
     },
     "roman": {
         "target_lines": ["Lya"],
-        "rval": 461, # Really 461 * wave, with `wave` in microns. 
+        "rval": 461, # Really 461 * wave, with `wave` in microns.
         "hemisphere": "S",
         "lambda_range": [1, 1.93],
         "angular_res": 5.333e-07, # 0.11 arcsec/pixel
+    },
+    "euclid": {
+        "target_lines": ["Lya"],
+        "rval": 250,
+        "hemisphere": "S",
+        "lambda_range": [0.92, 2.],
+        "angular_res": 4.848e-07, # 0.1 arcsec/pixel
     }
 }
 
@@ -426,7 +434,10 @@ class Survey(object):
         kperp = self.get_kperp_range()
 
         for line in self.get_target_lines():
-            ax.fill_between(kperp[line], *kpara[line], **kwargs)
+            rect = Rectangle((kperp[line][0], kpara[line][0]),
+                np.diff(kperp[line])[0], np.diff(kpara[line])[0],
+                **kwargs)
+            ax.add_patch(rect)
 
         ax.set_xscale("log")
         ax.set_yscale("log")
