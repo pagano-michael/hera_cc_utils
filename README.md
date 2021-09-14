@@ -19,6 +19,7 @@ pip install .
 The following packages are required:
 
 * astropy
+* healpy
 * numpy
 * matplotlib
 * setuptools_scm
