@@ -29,14 +29,17 @@ jobs:
         conda env update -f ci/hera_cc_utils_tests.yml --name base
     - name: Lint with flake8 + black
       run: |
+        conda activate base
         pre-commit run -a
     - name: Build
       run: |
+        conda activate base
         pip install .
         echo "backend : Agg" > $HOME/matplotlibrc
         export MATPLOTLIBRC=$HOME
     - name: Test with pytest
       run: |
+        conda activate base
         pytest --cov-config=.coveragerc --cov=hera_cc_utils --cov-report=xml -v tests/*.py
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
