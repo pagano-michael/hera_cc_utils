@@ -5,6 +5,7 @@
 """Utilities for dealing with galaxy/QSO catalogs."""
 
 import numpy as np
+import matplotlib.pyplot as plt
 from astropy.coordinates import SkyCoord
 
 from .util import deg_per_hr
@@ -164,16 +165,45 @@ class Catalog(object):
         self.data = data
         self.kwargs = kwargs
 
-    def plot_catalog(self, ax=None, zmin=None, fig=1,
-        projection='rectilinear', **kwargs):
+    def plot_catalog(
+        self, ax=None, zmin=None, num=1, projection="rectilinear", **fig_kwargs
+    ):
+        """
+        Plot a catalog using matplotlib.
 
-        if projection != 'rectilinear':
-            raise NotImplemented('Only know rectilinear projection right now!')
+        Parameters
+        ----------
+        ax : matplotlib axis object, optional
+            The axes to use for plotting. If None, then a new figure and axis
+            will be created.
+        zmin : float, optional
+            The minimum redshift to use for plotting objects.
+        num : int, optional
+            The figure number to create if `ax` is not provided.
+        projection : str, optional
+            The projection to use for plotting.
+        kwargs : dict, optional
+            Additional kwargs passed to matplotlib.pyplot.figure
+
+        Returns
+        -------
+        ax : matplotlib axis object
+            If `ax` is provided as a parameter, the same axis object. Otherwise,
+            a new one.
+
+        Raises
+        ------
+        NotImplementedError
+           Raised if any projection besides "rectilinear" is passed.
+        """
+        if projection != "rectilinear":
+            raise NotImplementedError("Only know rectilinear projection right now!")
 
         # Setup plot window
         has_ax = True
         if ax is None:
             fig = plt.figure(num=num, **fig_kwargs)
+            ax = fig.gca()
             has_ax = False
 
         # Get all objects in catalog
@@ -184,14 +214,11 @@ class Catalog(object):
         for i, coord in enumerate(coords):
             ra, dec, z = coord
 
-            if 'label' in kwargs and i > 0:
-                del kwargs['label']
-                
-            ax.scatter(ra, dec, **kwargs)
+            ax.scatter(ra, dec)
 
         if not has_ax:
-            ax.set_xlabel(r'Right Ascension [hours]', fontsize=24, labelpad=5)
-            ax.set_ylabel(r'Declination [deg]', fontsize=24, labelpad=5)
+            ax.set_xlabel(r"Right Ascension [hours]", fontsize=24, labelpad=5)
+            ax.set_ylabel(r"Declination [deg]", fontsize=24, labelpad=5)
 
         return ax
 
