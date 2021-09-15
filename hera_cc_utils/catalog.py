@@ -15,49 +15,49 @@ _xshooter_ref = "https://ui.adsabs.harvard.edu/abs/2020ApJ...905...51S/abstract"
 _viking_ref1 = "https://ui.adsabs.harvard.edu/abs/2013ApJ...779...24V/abstract"
 _viking_ref2 = "https://ui.adsabs.harvard.edu/abs/2015MNRAS.453.2259V/abstract"
 _viking = {
-    "J2348–3054": {
+    "J2348-3054": {
         "ra": "23h48m33.34s",
         "dec": "-30d54m10.0s",
         "z": 6.886,
         "ref": _viking_ref1,
     },
-    "J0109–3047": {
+    "J0109-3047": {
         "ra": "01h09m53.13s",
         "dec": "-30d47m26.3s",
         "z": 6.745,
         "ref": _viking_ref1,
     },
-    "J0305–3150": {
+    "J0305-3150": {
         "ra": "03h05m16.92s",
         "dec": "-31d50m56.0s",
         "z": 6.604,
         "ref": _viking_ref1,
     },
-    "J0328−3253": {
+    "J0328-3253": {
         "ra": "03h28m35.511s",
         "dec": "-32d53m22.92s",
         "z": 5.860,
         "ref": _viking_ref2,
     },
-    "J0046–2837": {
+    "J0046-2837": {
         "ra": "00h46m23.645s",
         "dec": "-28d37m47.34s",
         "z": 5.9926,
         "ref": _xshooter_ref,
     },
-    "J2211–3206": {
+    "J2211-3206": {
         "ra": "22h11m12.391s",
         "dec": "-32d06m12.95s",
         "z": 6.3394,
         "ref": _xshooter_ref,
     },
-    "J2318–3029": {
+    "J2318-3029": {
         "ra": "23h18m33.103s",
         "dec": "-30d29m33.36s",
         "z": 6.1456,
         "ref": _xshooter_ref,
     },
-    "J2348–3054_xshooter": {
+    "J2348-3054_xshooter": {
         "ra": "23h48m33.336s",
         "dec": "-30d54m10.24s",
         "z": 6.9007,
@@ -70,13 +70,13 @@ _ps1_ref1 = "https://ui.adsabs.harvard.edu/abs/2014AJ....148...14B/abstract"
 _ps1_ref2 = "https://ui.adsabs.harvard.edu/abs/2017ApJ...849...91M/abstract"
 _ps1 = {
     "PSO 231-20": {"ra": "231.6576", "dec": "-20.8335", "z": 6.5864, "ref": _ps1_ref2},
-    "PSO J037.9706–28.8389": {
+    "PSO J037.9706-28.8389": {
         "ra": "02h31m52.96s",
         "dec": "-28d50m20.1s",
         "z": 5.99,
         "ref": _ps1_ref1,
     },
-    "PSO J065.4085–26.9543": {
+    "PSO J065.4085-26.9543": {
         "ra": "04h21m38.049s",
         "dec": "-26d57m15.61s",
         "z": 6.1871,
@@ -100,7 +100,7 @@ _atlas = {
         "z": 6.31,
         "ref": _atlas_ref1,
     },
-    "J332.8017−32.1036": {
+    "J332.8017-32.1036": {
         "ra": "332.8017",
         "dec": "-32.1036",
         "z": 6.32,
@@ -127,7 +127,7 @@ _other = {
     "J2002−3013": {"ra": "2002", "dec": "-3013", "z": 6.67, "ref": _yang},
     "J2318–3113": {
         "ra": "23h18m18.351s",
-        "dec": "−31d13m46.35s",
+        "dec": "-31d13m46.35s",
         "z": 6.444,
         "ref": _decarli,
     },
@@ -192,7 +192,6 @@ class Catalog(object):
         data = []
         names = []
         for cat in _qso_catalogs.keys():
-
             for element in _qso_catalogs[cat]:
                 obj = _qso_catalogs[cat][element]
 
