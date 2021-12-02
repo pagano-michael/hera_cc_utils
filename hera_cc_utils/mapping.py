@@ -227,8 +227,8 @@ class Map(object):
             raw_map = self.data
             nside = healpy.npix2nside(raw_map.size)
         else:
-            # Could add other maps here for backdrops at some point.
-            raise NotImplementedError("help")
+            # Map is not of type np.ndarray 
+            raise NotImplementedError("Map is not of type np.ndarray or is not supported")
 
         # Initialize Rotator object to transform coordinates.
         rot = healpy.Rotator(coord=[coord_in, coord_out], **rot_kw)
